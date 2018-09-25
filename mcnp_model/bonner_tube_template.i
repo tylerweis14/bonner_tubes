@@ -7,9 +7,13 @@ c                               CELL CARDS
 c ******************************************************************************
 c
 c                          -----Beam Port------
-1 0         11 -12 -13      IMP:N=1  $ BP Inner Region
+1 0         11 -15 -13      IMP:N=1  $ BP Inner Region
 2 1 -2.699  11 -12  13 -14  IMP:N=1  $ BP Tube
-3 0         (-11):(12):(14 11 -12)               IMP:N=0
+3 0         (-11):(16):(14 11 -12):(13 12 -16)     IMP:N=0
+4 2 -0.950  15 -17 -13      IMP:N=1 $ Bonner Tube Inner
+5 2 -0.950  17 -16 18 -13      IMP:N=1 $ Bonner Tube Outer
+6 0         19 -16 -18      IMP:N=0 $ Tube Cut Out
+7 1 -2.699  17 -19 -18      IMP:N=1 $ Disk
 
 c ****************************************************************************** 
 c                               SURFACE CARDS 
@@ -18,6 +22,11 @@ c ******************************************************************************
 12 PX    50.0     $ BP Outer
 13 CX    0.9525   $ BP Inner Diameter
 14 CX    1.27     $ BP Outer Diameter
+15 PX    45.0     $ Bonner Tube Inner
+16 PX    55.0     $ Bonner Tube Outer
+17 PX    52.0     $ Bonner Cut Out Inner
+18 CX    0.5      $ Bonner Cut Out Diameter
+19 PX    53.0     $ Disk Outer
 
 c ****************************************************************************** 
 c                               DATA CARDS 
