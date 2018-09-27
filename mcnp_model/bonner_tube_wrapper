@@ -1,2 +1,0 @@
-from bonner_tube_template import template
-print(template)
