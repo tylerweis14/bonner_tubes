@@ -22,9 +22,9 @@ c ******************************************************************************
 12 PX    50.0     $ BP Outer
 13 CX     0.9525   $ BP Inner Diameter
 14 CX     1.27     $ BP Outer Diameter
-15 PX    45.0     $ Bonner Tube Inner
+15 PX    {}     $ Bonner Tube Inner
 16 PX    55.0     $ Bonner Tube Outer
-17 PX    52.0     $ Bonner Cut Out Inner
+17 PX    50.5     $ Bonner Cut Out Inner
 18 CX     0.5      $ Bonner Cut Out Diameter
 19 PX    53.0     $ Disk Outer
 
