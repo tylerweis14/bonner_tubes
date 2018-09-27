@@ -53,7 +53,7 @@ def master_task():
 
         # tell slaves to quit
         else:
-            comm.send('QUIT', i, tag=i)
+            comm.send('QUIT', dest=i, tag=i)
             slave_exit_status[i] = True
             if False in slave_exit_status:
                 pass
