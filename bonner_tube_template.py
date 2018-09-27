@@ -7,35 +7,35 @@ c                               CELL CARDS
 c ******************************************************************************
 c
 c                          -----Beam Port------
-1 0         11 -15 -13      IMP:N=1  $ BP Inner Region
-2 1 -2.699  11 -12  13 -14  IMP:N=1  $ BP Tube
-3 0         (-11):(16):(14 11 -12):(13 12 -16)  IMP:N=0
-4 {} -{}  15 -17 -13      IMP:N=1 $ Bonner Tube Inner
-5 {} -{}  17 -16 18 -13      IMP:N=1 $ Bonner Tube Outer
-6 0         19 -16 -18      IMP:N=0 $ Tube Cut Out
-7 5 -2.699  17 -19 -18      IMP:N=1 $ Indium Disk
+1  0         11 -15 -13                         IMP:N=1  $ BP Inner Region
+2  1 -2.699  11 -12  13 -14                     IMP:N=1  $ BP Tube
+3  0       (-11):(16):(14 11 -12):(13 12 -16)   IMP:N=0  $ Graveyard
+4  {} -{}    15 -17 -13                         IMP:N=1  $ Bonner Tube Inner
+5  {} -{}    17 -16 18 -13                      IMP:N=1  $ Bonner Tube Outer
+6  0         19 -16 -18                         IMP:N=1  $ Tube Cut Out
+7  5 -2.699  17 -19 -18                         IMP:N=1  $ Indium Disk
 
 c ****************************************************************************** 
 c                               SURFACE CARDS 
 c ****************************************************************************** 
 11 PX     0.0     $ BP Inner
 12 PX    50.0     $ BP Outer
-13 CX    0.9525   $ BP Inner Diameter
-14 CX    1.27     $ BP Outer Diameter
+13 CX     0.9525   $ BP Inner Diameter
+14 CX     1.27     $ BP Outer Diameter
 15 PX    45.0     $ Bonner Tube Inner
 16 PX    55.0     $ Bonner Tube Outer
 17 PX    52.0     $ Bonner Cut Out Inner
-18 CX    0.5      $ Bonner Cut Out Diameter
+18 CX     0.5      $ Bonner Cut Out Diameter
 19 PX    53.0     $ Disk Outer
 
 c ****************************************************************************** 
 c                               DATA CARDS 
 c ******************************************************************************
 SDEF   POS=1 0 0 AXS=1 0 0 EXT=0 VEC=1 0 0 ERG=D1 RAD=D2 PAR=1 
-si1 {:8.6e} {:8.6e}
-sp1 0 1
-si2 0 0.9525
-sp2 -21 1
+SI1 {:8.6e} {:8.6e}
+SP1 0 1
+SI2 0 0.9525
+SP2 -21 1
 c
 NPS 1E6
 c

@@ -32,10 +32,7 @@ def extract_output():
 def clean_repo():
     """Removes the mcnp files from the repository."""
     for f in ['input.i', 'input.io', 'input.ir']:
-        try:
-            os.system('rm {}'.format(f))
-        except:
-            pass
+        os.system('rm {}'.format(f))
     return
 
 
