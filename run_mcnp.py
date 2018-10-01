@@ -41,9 +41,9 @@ def clean_repo(name):
     return
 
 
-def run_mcnp(name, erg_bounds, mat, template):
+def run_mcnp(name, erg_bounds, mat, l, template):
     """Runs all the functions given in this repo."""
-    write_input(name, (eb[i], eb[i+1]), 'abs', template)
+    write_input(name, erg_bounds, 'abs', l, template)
     run_input(name)
     val, err = extract_output(name)
     clean_repo(name)

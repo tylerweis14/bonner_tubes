@@ -9,11 +9,17 @@ size = comm.size        # total number of processes
 rank = comm.rank        # rank of this process
 status = MPI.Status()   # get MPI status object
 
+tags = {'REQUEST': 1,
+        'INQUIRE': 2,
+        'STATUS': 3,
+        'JOB': 4,
+        'DATA': 5}
+
 
 def master_task():
     # parameters
     mats = ['abs', 'poly']
-    lengths = [1, 2, 3, 4, 5]
+    lengths = [1, 2]
     eb = energy_groups()[::-1]*1e-6
 
     # initialize data structure and create jobs
@@ -34,27 +40,29 @@ def master_task():
     slave_exit_status[0] = True
     while True:
         # find slave and establish communication
-        ready_node = comm.recv(MPI.ANY_SOURCE, tag='REQUEST')
-        comm.send(ready_node, tag='INQUIRE')
-        slave_status = comm.recv(ready_node, tag='STATUS')
+        ready_node = comm.recv(source=MPI.ANY_SOURCE, tag=tags['REQUEST'])
+        comm.send(ready_node, dest=ready_node, tag=tags['INQUIRE'])
+        slave_status = comm.recv(source=ready_node, tag=tags['STATUS'])
 
-        if jobs or open_jobs:
+        if jobs or slave_status == 'COMPLETE':
             if slave_status == 'IDLE':
                 next_job = jobs.pop()
-                comm.send(next_job, ready_node, tag='JOB')
+                comm.send(next_job, ready_node, tag=tags['JOB'])
                 open_jobs.append(next_job)
             elif slave_status == 'COMPLETE':
-                job, result = comm.recv(ready_node, tag='DATA')
-                name = '{}_{}cm'.format(job[0], job[1])
-                rf[name][0] = result[0]
-                rf[name][1] = result[1]
+                job, result = comm.recv(source=ready_node, tag=tags['DATA'])
+                s = job[0].split('cm')
+                name = s[0] + 'cm'
+                i = int(s[1])
+                rf[name][i][0] = result[0]
+                rf[name][i][1] = result[1]
                 closed.append(job)
                 open_jobs.remove(job)
 
         # tell slaves to quit
-        else:
-            comm.send('QUIT', dest=i, tag=i)
-            slave_exit_status[i] = True
+        elif not jobs and slave_status == 'IDLE':
+            comm.send('QUIT', dest=ready_node, tag=tags['JOB'])
+            slave_exit_status[ready_node] = True
             if False in slave_exit_status:
                 pass
             else:
@@ -66,21 +74,21 @@ def slave_task():
     status = 'IDLE'
     while True:
         # establish communciation with master
-        comm.send(rank, dest=0, tag='REQUEST')
-        comm.recv(0, tag='INQUIRE')
+        comm.send(rank, dest=0, tag=tags['REQUEST'])
+        comm.recv(source=0, tag=tags['INQUIRE'])
 
         # let master know status
-        comm.send(status, 0, tag='STATUS')
+        comm.send(status, dest=0, tag=tags['STATUS'])
 
         # recieve job from master
         if status == 'IDLE':
-            job = comm.recv(source=0, tag='JOB')
+            job = comm.recv(source=0, tag=tags['JOB'])
             if job == 'QUIT':
                 break
             status = 'BUSY'
             data = run_mcnp(*job)
             status = 'COMPLETE'
         elif status == 'COMPLETE':
-            comm.send(data, dest=0, tag='DATA')
+            comm.send((job, data), dest=0, tag=tags['DATA'])
             status = 'IDLE'
     return
