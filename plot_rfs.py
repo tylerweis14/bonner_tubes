@@ -17,13 +17,15 @@ fig = plt.figure(1)
 ax = fig.add_subplot(111)
 ax.set_xscale('log')
 ax.set_yscale('log')
-ax.set_ylim(1e-9, 1e-2)
+ax.set_ylim(1e-7, 1e-2)
 
+lengths = [1, 2, 3, 4, 5, 8]
 for key, val in rf.items():
-    if 'poly' in key:
+    num = float(key[5:-2])
+    if 'poly' in key and num in lengths:
         r, err = val[1:].T
-        xs = Spectrum(params['eb'], r, err)
+        xs = Spectrum(params['eb'], r, r*err)
         plot = ax.plot(*xs.stepu, label=key)
-        #ax.errorbar(xs.midpoints, xs.values, xs.error, color=plot[0].get_color(), linestyle='None')
+        ax.errorbar(xs.midpoints, xs.values, xs.error, color=plot[0].get_color(), linestyle='None')
 
 ax.legend()
