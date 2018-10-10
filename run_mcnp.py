@@ -1,3 +1,4 @@
+import numpy as np
 from mcnp_template import template
 from multigroup_utilities import energy_groups
 import subprocess
@@ -9,8 +10,9 @@ def write_input(name, erg_bounds, mat, length, template):
     mats = {}
     mats['abs'] = (3, 1.070)
     mats['poly'] = (4, 1.300)
-    l = 50 - length
-    template = template.format(*mats[mat], *mats[mat], l, *erg_bounds)
+    l = 15 + length
+    lengths = [(l + 2), l, (l + 1.5)]
+    template = template.format(*mats[mat], *lengths, *erg_bounds)
     with open(name + '.i', 'w+') as F:
         F.write(template)
     return
@@ -26,12 +28,16 @@ def extract_output(name):
     """Grabs the output value from the mcnp output file."""
     with open(name + '.io', 'r') as F:
         output = F.read()
-    output = output.split('1tally')[1]
+    output = output.split('1tally')
+    output0 = output[1]
+    output1 = output[2]
     s = r'                 \d.\d\d\d\d\dE[+-]\d\d \d.\d\d\d\d'
     pattern = re.compile(s)
-    results = re.findall(pattern, output)
-    r = results[0].split()
-    return float(r[0]), float(r[1])
+    results = re.findall(pattern, output0)
+    r0 = results[0].split()
+    flux_weighted_xs = float(r0[0])
+    err = float(r0[1])
+    return flux_weighted_xs, err
 
 
 def clean_repo(name):
@@ -54,5 +60,5 @@ if __name__ == '__main__':
     eb = energy_groups()[::-1]*1e-6
     for i in range(len(eb)-1):
         if i == 60:
-            result = run_mcnp('input', (eb[i], eb[i+1]), 'abs', template)
+            result = run_mcnp('input', (eb[i], eb[i+1]), 'poly', 1, template)
             print(result)

@@ -7,26 +7,36 @@ c                               CELL CARDS
 c ******************************************************************************
 c
 c                          -----Beam Port------
-1  0         11 -15 -13                         IMP:N=1  $ BP Inner Region
-2  1 -2.699  11 -12  13 -14                     IMP:N=1  $ BP Tube
-3  0       (-11):(16):(14 11 -12):(13 12 -16)   IMP:N=0  $ Graveyard
-4  {} -{}    15 -17 -13                         IMP:N=1  $ Bonner Tube Inner
-5  {} -{}    17 -16 18 -13                      IMP:N=1  $ Bonner Tube Outer
-6  0         19 -16 -18                         IMP:N=1  $ Tube Cut Out
-7  5 -2.699  17 -19 -18                         IMP:N=1  $ Indium Disk
+1 0         11 -15 -13      IMP:N=1  $ BP Inner Region
+2 1 -2.699  11 -12  13 -14  IMP:N=1  $ BP Tube
+3 0         (-11):(16):(14 11 -12):(13 12 -16)     IMP:N=0
+4 1 -2.699  15 -16 18 -13       IMP:N=1 $ Al Tube
+5 1 -2.699  15 -20 23 -18       IMP:N=1 $ Tube Plug
+6 {} -{}  20 -21 -18      IMP:N=1 $ Tube Filter 1
+7 1 -2.699  (24 -18 21 -26):(26 -17 24 -18)   IMP:N=1 $ Foil Holder 
+8 0         17 -16 -18       IMP:N=1   
+9 5 -7.310 26 -17 -24        IMP:N=1 $ Foils
+10 0        15 -20 -23       IMP:N=1
+11 0        21 -26 -24       IMP:N=1
 
 c ****************************************************************************** 
 c                               SURFACE CARDS 
 c ****************************************************************************** 
 11 PX     0.0     $ BP Inner
 12 PX    50.0     $ BP Outer
-13 CX     0.9525   $ BP Inner Diameter
-14 CX     1.27     $ BP Outer Diameter
-15 PX    {}     $ Bonner Tube Inner
-16 PX    55.0     $ Bonner Tube Outer
-17 PX    50.5     $ Bonner Cut Out Inner
-18 CX     0.5      $ Bonner Cut Out Diameter
-19 PX    53.0     $ Disk Outer
+13 CX    0.9525   $ BP Inner Diameter
+14 CX    1.27     $ BP Outer Diameter
+15 PX    14.75     $ Tube Inner
+16 PX    55.0     $ Tube Outer
+17 PX    {}    $ Foil Holder Outer
+18 CX    0.68     $ Tube Diameter
+19 PX    49.0     $ Disk Outer
+20 PX    15.0    $ Plug Outer
+21 PX    {}    $ Filter Outer 1
+23 CX    0.50     $ Plug Outer Diameter
+24 CX    0.40     $ Foil Holder Diameter
+25 CX    0.20     $ Foil Holder Front Diameter
+26 PX    {}    $ Foil Holder Middle Inside
 
 c ****************************************************************************** 
 c                               DATA CARDS 
@@ -83,8 +93,9 @@ c
 c  -----------------------------------------------------------------------------
 c  TALLY 1:         That disk.
 c  -----------------------------------------------------------------------------
-F4:N 7
+F4:N 9
 FM4 1 5 102
+F14:N 9
 c
 c ****************************************************************************** 
 c                             END OF INPUT FILE

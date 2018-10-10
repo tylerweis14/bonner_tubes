@@ -3,6 +3,7 @@ import pickle
 from parameters import params
 from mcnp_template import template
 from run_mcnp import run_mcnp
+from time import time
 from mpi4py import MPI
 # Initializations and preliminaries
 comm = MPI.COMM_WORLD   # get MPI communicator object
@@ -68,6 +69,8 @@ def master_task(params):
     # update stored data
     with open('btube_rf_data.p', 'rb') as F:
         database = pickle.load(F)
+        if params['reset']:
+            database = {}
         database.update(rf)
     with open('btube_rf_data.p', 'wb') as F:
         pickle.dump(database, F)
@@ -100,6 +103,11 @@ def slave_task():
 
 if __name__ == '__main__':
     if rank == 0:
+        start_time = time()
         master_task(params)
+        end_time = time()
+        msg = 'Script Ran in {:6.2e} s:'.format(end_time - start_time)
+        with open('runtime_info.txt', 'w+') as F:
+            F.write(msg)
     else:
         slave_task()
