@@ -16,4 +16,11 @@ fig = plt.figure(1)
 ax = fig.add_subplot(111)
 ax.set_xscale('log')
 ax.set_yscale('log')
-ax.plot(params['eb'], rf['poly_1cm'][:, 0])
+ax.set_ylim(1e-8, 1e-2)
+
+for key, val in rf.items():
+    r, err = val.T
+    ax.plot(params['eb'], r, label=key)
+    # ax.errorbar(params['eb'], r, err, linestyle=None)
+
+ax.legend()
