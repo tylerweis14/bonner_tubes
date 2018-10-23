@@ -25,7 +25,7 @@ def write_input(name, erg_bounds, mat, length, template):
     mats['poly'] = (4, 1.300)
     l = 15 + length
     lengths = [(l + 2), l, (l + 1.5)]
-    p,s = cut_generator(length,2,mats[mat])
+    p,s = cut_generator(length,8,mats[mat])
     template = template.format(*mats[mat],p, *lengths, s, *erg_bounds)
     with open(name + '.i', 'w+') as F:
         F.write(template)
