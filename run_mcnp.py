@@ -4,15 +4,29 @@ from multigroup_utilities import energy_groups
 import subprocess
 import re
 
+def cut_generator(length,n, mat):
+    leng = length+15
+    p = ''
+    s = ''
+    cut = np.linspace(15,leng,n+2)
+    cut = cut[:-1]
+    cut = cut[1:]
+    for i in range(n):
+        surf = -(28+i) if i != n-1 else -21
+        p += '{} {} {} {} {} {} IMP:N={}\n'.format(i+12,*mat,27+i,surf,-18,(2)**i)
+        s += '{} {} {}\n'.format(27+i,'PX',cut[i])
+    return p,s
 
 def write_input(name, erg_bounds, mat, length, template):
     """Writes an mcnp input file."""
     mats = {}
+    mats['HDPE'] = (2, 0.950)
     mats['abs'] = (3, 1.070)
     mats['poly'] = (4, 1.300)
     l = 15 + length
     lengths = [(l + 2), l, (l + 1.5)]
-    template = template.format(*mats[mat], *lengths, *erg_bounds)
+    p,s = cut_generator(length,8,mats[mat])
+    template = template.format(*mats[mat],p, *lengths, s, *erg_bounds)
     with open(name + '.i', 'w+') as F:
         F.write(template)
     return
