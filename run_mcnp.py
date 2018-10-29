@@ -17,6 +17,17 @@ def cut_generator(length,n, mat):
         s += '{} {} {}\n'.format(27+i,'PX',cut[i])
     return p,s
 
+def filter_generator(filter_type,n, fil = False):
+    if filter_type == 'Gad':
+        filter_type = '8 -7.9'
+    if filter_type == 'Cd':
+        filter_type = '7 -8.65'
+    if fil == True:
+        j = '{} {} {} {} {} IMP:N={}'.format(17,filter_type, 40, -26, -24, 2**n)
+    else:
+        j = '{}   {} {} {} IMP:N={}'.format(17, 40, -26, -24, 0)
+    return(j)
+
 def write_input(name, erg_bounds, mat, length, template):
     """Writes an mcnp input file."""
     mats = {}
@@ -26,7 +37,8 @@ def write_input(name, erg_bounds, mat, length, template):
     l = 15 + length
     lengths = [(l + 2), l, (l + 1.5)]
     p,s = cut_generator(length,8,mats[mat])
-    template = template.format(*mats[mat],p, *lengths, s, *erg_bounds)
+    j = filter_generator('Gad',8,False)
+    template = template.format(*mats[mat],j,p, *lengths, s, *erg_bounds)
     with open(name + '.i', 'w+') as F:
         F.write(template)
     return
@@ -61,13 +73,14 @@ def clean_repo(name):
     return
 
 
-def run_mcnp(name, erg_bounds, mat, l, template):
+def run_mcnp(name, erg_bounds, mat, l, template,inp_only=False):
     """Runs all the functions given in this repo."""
     write_input(name, erg_bounds, 'abs', l, template)
-    run_input(name)
-    val, err = extract_output(name)
-    clean_repo(name)
-    return val, err
+    if not inp_only:
+        run_input(name)
+        val, err = extract_output(name)
+        clean_repo(name)
+        return val, err
 
 
 if __name__ == '__main__':
