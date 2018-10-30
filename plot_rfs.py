@@ -17,18 +17,20 @@ fig = plt.figure(1)
 ax = fig.add_subplot(111)
 ax.set_xscale('log')
 ax.set_yscale('log')
-ax.set_ylim(1e-4, 10)
-lengths=[]
-length = [0.001,0.25,0.5,0.75,1,1.25,1.5,1.75,2.0,2.5]
+ax.set_ylim(1e-6, 3e-2)
+lengths = []
+length = [0.001,0.25,0.5,0.75,1,1.5,2.0,3.0,4.0,6]
+#length = [0.001,0.25,0.5,0.75,1]
 for i in length:
     lengths.append(i*2.54)
 for key, val in rf.items():
     num = float(key.split('_')[1][:-2])
     if 'HDPE' in key and num in lengths:
         r, err = val[1:].T
-        xs = Spectrum(params['eb'], r/r[0], r*err)
+        xs = Spectrum(params['eb'], r, r*err)
         plot = ax.plot(*xs.stepu, label=key)
-        ax.errorbar(xs.midpoints, xs.values, xs.error, color=plot[0].get_color(), linestyle='None')
+        print(xs.error)
+        ax.errorbar(xs.midpoints, xs.values, xs.values * err, linestyle='None', color=plot[0].get_color())
 
 ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-           ncol=2, mode="expand", borderaxespad=0.)
+          ncol=2, mode="expand", borderaxespad=0.)
