@@ -24,8 +24,9 @@ def filter_generator(filter_type, n, fil=False):
         filter_type = '8 -7.9'
     elif filter_type == 'Cd':
         filter_type = '7 -8.65'
+    print(fil)
     if fil:
-        j = '{} {} {} {} {} IMP:N={}'.format(21, filter_type, 40, -26, -24, 2**n)
+        j = '{} {} {} {} {} IMP:N={}'.format(21, filter_type, 40, -26, -24, 2**(n - 1))
     else:
         j = '{} {}  {} {} {} IMP:N={}'.format(21, 0, 40, -26, -24, 0)
     return j
@@ -38,7 +39,7 @@ def write_input(name, erg_bounds, mat, length, template, fil=''):
     mats['abs'] = (3, 1.070)
     mats['poly'] = (4, 1.300)
     l = 15 + length
-    lengths = [(l + 2), l, (l + 1.5)]
+    lengths = [(l + 2), l, (l + 1.5), (l + 10)]
 
     # number of splits
     n = 8
@@ -81,7 +82,7 @@ def clean_repo(name):
 
 def run_mcnp(name, erg_bounds, mat, l, template, fil='', inp_only=False):
     """Runs all the functions given in this repo."""
-    write_input(name, erg_bounds, 'abs', l, template)
+    write_input(name, erg_bounds, mat, l, template, fil)
     if not inp_only:
         run_input(name)
         val, err = extract_output(name)
@@ -93,5 +94,5 @@ if __name__ == '__main__':
     eb = energy_groups()[::-1]*1e-6
     for i in range(len(eb)-1):
         if i == 60:
-            result = run_mcnp('input', (eb[i], eb[i+1]), 'poly', 1, template, fil='Gad', inp_only=True)
+            result = run_mcnp('input', (eb[i], eb[i+1]), 'HDPE', 1, template, fil='', inp_only=True)
             print(result)
