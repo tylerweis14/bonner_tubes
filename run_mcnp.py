@@ -20,11 +20,10 @@ def cut_generator(length, n, mat):
 
 
 def filter_generator(filter_type, n, fil=False):
-    if filter_type == 'Gad':
+    if filter_type == 'Gd':
         filter_type = '8 -7.9'
     elif filter_type == 'Cd':
         filter_type = '7 -8.65'
-    print(fil)
     if fil:
         j = '{} {} {} {} {} IMP:N={}'.format(21, filter_type, 44, -26, -24, 2**(n - 1))
     else:
@@ -48,8 +47,8 @@ def write_input(name, erg_bounds, mat, foils, length, template, fil=''):
     # number of splits
     n = 8
     p, s = cut_generator(length, n, mats[mat])
-    j = filter_generator('Gad', n, bool(fil))
-    template = template.format(*mats[mat], *foil[foils], j, p, *lengths, s, *erg_bounds)
+    j = filter_generator(fil, n, bool(fil))
+    template = template.format(*mats[mat], *foil[foils], j, p, *lengths, s, *erg_bounds, foil[foils][0])
     with open(name + '.i', 'w+') as F:
         F.write(template)
     return

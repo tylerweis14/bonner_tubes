@@ -51,8 +51,8 @@ def create_jobs(params):
         for l_num, l in enumerate(params['lengths']):
             for foil_material in params['foils']:
                 for fil in params['filters']:
-                    job = Filter_Job(m, l, l_num, foil_material, fil)
                     for i, _ in enumerate(params['eb'][1:]):
+                        job = Filter_Job(m, l, l_num, foil_material, fil)
                         job.assign_erg(params['group_structure'], i, params['eb'][i], params['eb'][i+1])
                         jobs.append(job)
 
@@ -87,7 +87,9 @@ def master_task(params):
                 rf[job.name][1][job.group_number][0] = result[0]
                 rf[job.name][1][job.group_number][1] = result[1]
                 closed.append(job)
-                open_jobs.remove(job)
+                for i, open_job in enumerate(open_jobs):
+                    if job.name == open_job.name and job.group_number == open_job.group_number:
+                        open_jobs.remove(open_jobs[i])
 
         # tell slaves to quit
         elif not jobs and slave_status == 'IDLE':

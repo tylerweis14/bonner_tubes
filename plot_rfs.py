@@ -2,6 +2,7 @@ import pickle
 import matplotlib.pyplot as plt
 from parameters import params
 from spectrum import Spectrum
+from driver import Filter_Job
 
 
 # import data
@@ -15,14 +16,9 @@ ax = fig.add_subplot(111)
 ax.set_xscale('log')
 ax.set_yscale('log')
 ax.set_ylim(1e-6, 3e-2)
-lengths = []
-length = [0.001, 0.25, 0.5, 0.75, 1, 1.5, 2.0, 3.0, 4.0, 6]
-for i in length:
-    lengths.append(i*2.54)
 for key, val in rf.items():
-    num = float(key.split('_')[1][:-2])
-    if 'HDPE' in key and num in lengths:
-        r, err = val[1:].T
+    if 'l0' in key:
+        r, err = val[1][1:].T
         xs = Spectrum(params['eb'], r, r*err)
         plot = ax.plot(*xs.stepu, label=key)
         ax.errorbar(xs.midpoints, xs.values, xs.values * err, linestyle='None', color=plot[0].get_color())
