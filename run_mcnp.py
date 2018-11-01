@@ -26,26 +26,30 @@ def filter_generator(filter_type, n, fil=False):
         filter_type = '7 -8.65'
     print(fil)
     if fil:
-        j = '{} {} {} {} {} IMP:N={}'.format(21, filter_type, 40, -26, -24, 2**(n - 1))
+        j = '{} {} {} {} {} IMP:N={}'.format(21, filter_type, 44, -26, -24, 2**(n - 1))
     else:
-        j = '{} {}  {} {} {} IMP:N={}'.format(21, 0, 40, -26, -24, 0)
+        j = '{} {}  {} {} {} IMP:N={}'.format(21, 0, 44, -26, -24, 2**(n - 1))
     return j
 
 
-def write_input(name, erg_bounds, mat, length, template, fil=''):
+def write_input(name, erg_bounds, mat, foils, length, template, fil=''):
     """Writes an mcnp input file."""
+    foil = {}
+    foil['Au'] = (9, 19.30)
+    foil['Mo'] = (10, 10.28)
+    foil['In'] = (5, 7.310)
     mats = {}
     mats['HDPE'] = (2, 0.950)
     mats['abs'] = (3, 1.070)
     mats['poly'] = (4, 1.300)
     l = 15 + length
-    lengths = [(l + 2), l, (l + 1.5), (l + 10)]
+    lengths = [(l + 2), l, (l + 1.5), (l + 1.45),(l + 10)]
 
     # number of splits
     n = 8
     p, s = cut_generator(length, n, mats[mat])
-    j = filter_generator(fil, n, bool(fil))
-    template = template.format(*mats[mat], j, p, *lengths, s, *erg_bounds)
+    j = filter_generator('Gad', n, bool(fil))
+    template = template.format(*mats[mat],*foil[foils], j, p, *lengths, s, *erg_bounds)
     with open(name + '.i', 'w+') as F:
         F.write(template)
     return
@@ -80,9 +84,9 @@ def clean_repo(name):
     return
 
 
-def run_mcnp(name, erg_bounds, mat, l, template, fil='', inp_only=False):
+def run_mcnp(name, erg_bounds, mat,foils, l, template, fil='', inp_only=False):
     """Runs all the functions given in this repo."""
-    write_input(name, erg_bounds, mat, l, template, fil)
+    write_input(name, erg_bounds, mat,foils, l, template, fil)
     if not inp_only:
         run_input(name)
         val, err = extract_output(name)
@@ -94,5 +98,5 @@ if __name__ == '__main__':
     eb = energy_groups()[::-1]*1e-6
     for i in range(len(eb)-1):
         if i == 60:
-            result = run_mcnp('input', (eb[i], eb[i+1]), 'HDPE', 1, template, fil='', inp_only=True)
+            result = run_mcnp('input', (eb[i], eb[i+1]), 'HDPE','Au', 1, template, fil=True, inp_only=True)
             print(result)
