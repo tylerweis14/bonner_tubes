@@ -19,19 +19,54 @@ tags = {'REQUEST': 1,
         'DATA': 5}
 
 
-def master_task(params):
-    # initialize data structure and create jobs
+class Filter_Job(object):
+    """Container for a particular bonner_tube job."""
+    def __init__(self, pm, l, ln, foilm, film):
+        self.plug_material = pm
+        self.length = l
+        self.foil_material = foilm
+        self.filter_material = film
+        self.length_number = ln
+        self.name = self.make_name()
+
+    def make_name(self):
+        """Given the properties, writes a name for the job for storage."""
+        name = '{}_l{}_{}_{}'.format(self.plug_material, self.length_number, self.foil_material, self.filter_material)
+        return name
+
+    def assign_erg(self, gs, gn, el, eh):
+        """Allows for the assignment for energy group stuff."""
+        self.group_structure = gs
+        self.group_number = gn
+        self.eb = (el, eh)
+
+
+def create_jobs(params):
+    """This function creates the set of jobs to be ran (list) and also returns
+    an empty datastructure (dict of np.arrays) that will store the response
+    function data."""
     rf = {}
     jobs = []
+    for m in params['mats']:
+        for l_num, l in enumerate(params['lengths']):
+            for foil_material in params['foils']:
+                for fil in params['filters']:
+                    job = Filter_Job(m, l, l_num, foil_material, fil)
+                    for i, _ in enumerate(params['eb'][1:]):
+                        job.assign_erg(params['group_structure'], i, params['eb'][i], params['eb'][i+1])
+                        jobs.append(job)
+
+                    # initialize empty array for rf storage and set first values to zero
+                    rf[job.name] = job, np.empty((len(params['eb']), 2))
+                    rf[job.name][1][0] = 0
+    return jobs, rf
+
+
+def master_task(params):
+    # initialize data structure and create jobs
     open_jobs = []
     closed = []
-    for m in params['mats']:
-        for l in params['lengths']:
-            name = '{}_{}cm'.format(m, l)
-            rf[name] = np.empty((len(params['eb']), 2))
-            rf[name][0] = 0
-            for i, _ in enumerate(params['eb'][1:]):
-                jobs.append((name+str(i), (params['eb'][i], params['eb'][i+1]), m, l, template))
+    jobs, rf = create_jobs(params)
 
     # distribute work
     slave_exit_status = [False] * size
@@ -49,11 +84,8 @@ def master_task(params):
                 open_jobs.append(next_job)
             elif slave_status == 'COMPLETE':
                 job, result = comm.recv(source=ready_node, tag=tags['DATA'])
-                s = job[0].split('cm')
-                name = s[0] + 'cm'
-                i = int(s[1])
-                rf[name][i][0] = result[0]
-                rf[name][i][1] = result[1]
+                rf[job.name][1][job.group_number][0] = result[0]
+                rf[job.name][1][job.group_number][1] = result[1]
                 closed.append(job)
                 open_jobs.remove(job)
 
@@ -93,7 +125,7 @@ def slave_task():
             if job == 'QUIT':
                 break
             status = 'BUSY'
-            data = run_mcnp(*job)
+            data = run_mcnp(job, template)
             status = 'COMPLETE'
         elif status == 'COMPLETE':
             comm.send((job, data), dest=0, tag=tags['DATA'])
