@@ -43,13 +43,13 @@ def write_input(name, erg_bounds, mat, foils, length, template, fil=''):
     mats['abs'] = (3, 1.070)
     mats['poly'] = (4, 1.300)
     l = 15 + length
-    lengths = [(l + 2), l, (l + 1.5), (l + 1.45),(l + 10)]
+    lengths = [(l + 2), l, (l + 1.5), (l + 1.45), (l + 10)]
 
     # number of splits
     n = 8
     p, s = cut_generator(length, n, mats[mat])
     j = filter_generator('Gad', n, bool(fil))
-    template = template.format(*mats[mat],*foil[foils], j, p, *lengths, s, *erg_bounds)
+    template = template.format(*mats[mat], *foil[foils], j, p, *lengths, s, *erg_bounds)
     with open(name + '.i', 'w+') as F:
         F.write(template)
     return
@@ -84,14 +84,17 @@ def clean_repo(name):
     return
 
 
-def run_mcnp(name, erg_bounds, mat,foils, l, template, fil='', inp_only=False):
+def run_mcnp(job, template, inp_only=False):
     """Runs all the functions given in this repo."""
-    write_input(name, erg_bounds, mat,foils, l, template, fil)
+    mcnp_name = job.name + str(job.group_number)
+    write_input(mcnp_name, job.eb, job.plug_material, job.foil_material, job.length, template, job.filter_material)
     if not inp_only:
-        run_input(name)
-        val, err = extract_output(name)
-        clean_repo(name)
+        run_input(mcnp_name)
+        val, err = extract_output(mcnp_name)
+        clean_repo(mcnp_name)
         return val, err
+    else:
+        return 'Input Written'
 
 
 if __name__ == '__main__':
