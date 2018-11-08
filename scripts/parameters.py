@@ -18,6 +18,6 @@ params['foils'] = ['In']
 # types of thermal neutron filters
 params['filters'] = ['', 'Cd']
 
-# the wims69 energy group structure
-params['group_structure'] = 'wims69'
-params['eb'] = energy_groups()[::-1]*1e-6
+# the energy group structure
+params['group_structure'] = 'scale252'
+params['eb'] = energy_groups(params['group_structure'])[::-1]*1e-6

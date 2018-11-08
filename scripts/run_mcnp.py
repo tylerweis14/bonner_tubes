@@ -25,9 +25,9 @@ def filter_generator(filter_type, n, fil=False):
     elif filter_type == 'Cd':
         filter_type = '7 -8.65'
     if fil:
-        j = '{} {} {} {} {} IMP:N={}'.format(21, filter_type, 44, -26, -24, 2**(n - 1))
+        j = '{} {} ({} {} {}):({} {} {}) IMP:N={}'.format(21, filter_type, 45, -44, -24, 26, -17, -24, 2**(n - 1))
     else:
-        j = '{} {}  {} {} {} IMP:N={}'.format(21, 0, 44, -26, -24, 2**(n - 1))
+        j = '{} {}  ({} {} {}):({} {} {}) IMP:N={}'.format(21, 0, 45, -44, -24, 26, -17, -24, 2**(n - 1))
     return j
 
 
@@ -42,7 +42,7 @@ def write_input(name, erg_bounds, mat, foils, length, template, fil=''):
     mats['abs'] = (3, 1.070)
     mats['poly'] = (4, 1.300)
     l = 15 + length
-    lengths = [(l + 2), l, (l + 1.5), (l + 1.45), (l + 10)]
+    lengths = [(l + 2), l, (l + 1.95), (l + 1.80), (l + 1.75), (l + 10)]
 
     # number of splits
     n = 8
