@@ -1,5 +1,6 @@
 import numpy as np
 from mcnp_template import template
+from mcnp_template2 import template2
 from multigroup_utilities import energy_groups
 import subprocess
 import re
@@ -52,7 +53,6 @@ def write_input(name, erg_bounds, mat, foils, length, template, fil=''):
     with open(name + '.i', 'w+') as F:
         F.write(template)
     return
-
 
 def run_input(name):
     """Runs the mncp input file."""
