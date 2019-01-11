@@ -11,27 +11,23 @@ c                          -----Beam Port------
 2 1 -2.699  11 -12  13 -14  IMP:N=1  $ BP Tube
 3 0         (-11):(21):(12 13)       IMP:N=0
 4 1 -2.699  15 -16 18 -13       IMP:N=1 $ Al Tube
-5 1 -2.699  15 -20 23 -18       IMP:N=1 $ Tube Plug
-80 6 -1.300  11 -12 14 -21   IMP:N=1
-40 2 -1.300 20 -16 -33       IMP:N=1
-41 0 16 -13 IMP:N=1
-42 0 15 -20 -23 IMP:N=1
+6 6 -1.300  11 -12 14 -21   IMP:N=1
+8 0 16 -13 IMP:N=1
 {}
 c ******************************************************************************
 c                               SURFACE CARDS
 c ******************************************************************************
 11 PX     0.0     $ BP Inner
 12 PX    50.0     $ BP Outer
-13 CX    0.9525   $ BP Inner Diameter
-14 CX    1.27     $ BP Outer Diameter
-15 PX    14.75     $ Tube Inner
-16 PX    55.0     $ Tube Outer
-18 CX    0.68     $ Tube Diameter
+13 CX    0.9525   $ BP Inner Radius
+14 CX    1.27     $ BP Outer Radius
+15 PX    14.75    $ Tube Inner Distance
+16 PX    55.0     $ Tube Outer Distance
+18 CX    0.825    $ Aluminum irridation tube inside radius
 19 PX    49.0     $ Disk Outer
-20 PX    15.0    $ Plug Outer
-23 CX    0.50     $ Plug Outer Diameter
+20 PX    15.0     $ Plug Outer
+23 CX    0.50     $ Plug Outer radius/foil radius
 21 CX    10.16    $ Poly Outer Diameter
-33 CX    0.1      $ Fishing line Outer Diameter
 {}
 c ******************************************************************************
 c                               DATA CARDS
@@ -42,7 +38,7 @@ SP1 0 1
 SI2 0 0.9525
 SP2 -21 1
 c
-NPS 4E7
+NPS 4e6
 c
 c  -----------------------------------------------------------------------------
 c                                                          MATERIAL CARDS

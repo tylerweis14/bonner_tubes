@@ -11,18 +11,8 @@ c                          -----Beam Port------
 2 1 -2.699  11 -12  13 -14  IMP:N=1  $ BP Tube
 3 0         (-11):(16):(31 11 -12):(13 12 -16)     IMP:N=0
 4 1 -2.699  15 -16 18 -13       IMP:N=1 $ Al Tube
-5 1 -2.699  15 -20 23 -18       IMP:N=1 $ Tube Plug
-7 2 -1.300  20 -34 33 -18       IMP:N=1 $ Filter 1
-8 5 -7.310  34 -35 33 -23       IMP:N=1 $ Disk 1
-9 2 -1.300  35 -36 33 -18       IMP:N=1 $ Filter 2
-10 5 -7.310 36 -37 33 -23       IMP:N=1 $ Disk 2
-11 2 -1.300 37 -38 33 -18       IMP:N=1 $ Filter 3
-12 5 -7.310 38 -39 33 -23       IMP:N=1 $ Disk 3
-13 0        34 -35 23 -18       IMP:N=1
-14 0        36 -37 23 -18       IMP:N=1
-15 0        38 -39 23 -18       IMP:N=1
-16 6 -1.300  11 -12 -31 14   IMP:N=1
-17 2 -1.300 20 -39 -33       IMP:N=1 $ String
+5 5 -7.310  25 -24 -26          IMP:N=1 $ Foil
+6 4 -1.300  (15 -25 -18):(25 -24 26 -18) IMP:N=1 $ Filter
 
 c ****************************************************************************** 
 c                               SURFACE CARDS 
@@ -35,17 +25,11 @@ c ******************************************************************************
 16 PX    55.0     $ Tube Outer
 18 CX    0.79375       $ Tube Diameter
 19 PX    49.0     $ Disk Outer
-20 PX    15.25    $ Plug Outer
-23 CX    1.27     $ Plug Outer Diameter
+24 PX    17.54    $ First filter
+25 PX    17.44    $ Cavity
+26 CX    0.5      $ Foil Diameter
 31 CX    10.16    $ Poly Outer Diameter   
 32 PX    17.70
-33 CX    0.1      $ Fishing line Outer Diameter
-34 PX    15.885   $ Filter 1
-35 PX    15.985   $ Disk 1
-36 PX    16.62    $ Filter 2
-37 PX    16.72    $ Disk 2
-38 PX    17.355   $ Filter 3
-39 PX    17.455   $ Disk 3
 
 c ****************************************************************************** 
 c                               DATA CARDS 
