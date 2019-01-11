@@ -1,6 +1,6 @@
 import numpy as np
-from mcnp_template import template
-from mcnp_template2 import template2
+from source_template import rf_source, ir_source
+from tally_template import rf_tally, ir_tally
 from multigroup_utilities import energy_groups
 import subprocess
 import re
@@ -32,7 +32,34 @@ def filter_generator(filter_type, n, fil=False):
     return j
 
 
-def write_input(name, erg_bounds, mat, foils, length, template, fil=''):
+def card_writer(card, data, elements):
+    '''
+    Function: card_writer
+
+    This will write multiline cards for SI and SP distributions for mcnp inputs
+
+    Input Data:
+        card - name and number of the card
+        data array - a numpy array containing the data you'd like placed in the card.
+        Outputs:
+            a string that can be copied and pasted into an mcnp input file
+    '''
+    s = '{}   '.format(card)
+    empty_card = '   ' + ' ' * len(card)
+    elements_per_row = elements
+    row_counter = 0
+    element = '{:6}  ' if data.dtype in ['int32', 'int64'] else '{:14.6e}  '
+    for i, d in enumerate(data):
+        s += element.format(d)
+        row_counter += 1
+        if row_counter == elements_per_row and i + 1 != len(data):
+            row_counter = 0
+            s += '\n{}'.format(empty_card)
+    s += '\n'
+    return s
+
+
+def write_input(name, erg_bounds, mat, foils, length, template, job_type, group_struct, fil=''):
     """Writes an mcnp input file."""
     foil = {}
     foil['Au'] = (9, 19.30)
@@ -49,31 +76,72 @@ def write_input(name, erg_bounds, mat, foils, length, template, fil=''):
     n = 8
     p, s = cut_generator(length, n, mats[mat])
     j = filter_generator(fil, n, bool(fil))
-    template = template.format(*mats[mat], *foil[foils], j, p, *lengths, s, *erg_bounds, foil[foils][0])
+
+    # handle source term if used to calc rf or activity
+    if job_type == 'rf':
+        src_bounds = '{:8.6e} {:8.6e}'.format(*erg_bounds)
+        src_prob = '0 1'
+        source = rf_source.format(src_bounds, src_prob)
+    elif job_type == 'ir':
+        source = ir_source
+
+    # consider tally
+    if job_type == 'rf':
+        tally = rf_tally.format(foil[foils][0])
+    elif job_type == 'ir':
+        groups = energy_groups(group_struct)[::-1] * 1E-6
+        erg_card = card_writer('E4 ', groups, 4)
+        tally = ir_tally.format(foil[foils][0], erg_card)
+
+    template = template.format(*mats[mat], *foil[foils], j, p, *lengths, s, source, tally)
     with open(name + '.i', 'w+') as F:
         F.write(template)
     return
 
-def run_input(name):
+
+def run_input(name, job_type):
     """Runs the mncp input file."""
-    subprocess.call(['mcnp6', 'name={}.i'.format(name)])
+    if job_type == 'rf':
+        subprocess.call(['mcnp6', 'name={}.i'.format(name)])
+    elif job_type == 'ir':
+        subprocess.call(['mcnp6', 'name={}.i'.format(name), 'tasks 26'])
     return
 
 
-def extract_output(name):
+def extract_output(name, job_type):
     """Grabs the output value from the mcnp output file."""
     with open(name + '.io', 'r') as F:
         output = F.read()
     output = output.split('1tally')
-    output0 = output[1]
-    output1 = output[2]
-    s = r'                 \d.\d\d\d\d\dE[+-]\d\d \d.\d\d\d\d'
-    pattern = re.compile(s)
-    results = re.findall(pattern, output0)
-    r0 = results[0].split()
-    flux_weighted_xs = float(r0[0])
-    err = float(r0[1])
-    return flux_weighted_xs, err
+    output = output[1]
+    if job_type == 'rf':
+        s = r'                 \d.\d\d\d\d\dE[+-]\d\d \d.\d\d\d\d'
+        pattern = re.compile(s)
+        results = re.findall(pattern, output)
+        r0 = results[0].split()
+        val = float(r0[0])
+        err = float(r0[1])
+        return val, err
+    elif job_type == 'ir':
+        # grab groupwise data
+        s = r'    \d.\d\d\d\dE[+-]\d\d   \d.\d\d\d\d\dE[+-]\d\d \d.\d\d\d\d'
+        pattern = re.compile(s)
+        results = re.findall(pattern, output)
+        val = np.empty(len(results))
+        err = np.empty(len(val))
+        for i, line in enumerate(results):
+            bound, value, error = line.split()
+            val[i] = float(value)
+            err[i] = float(error)
+
+        # grab total data
+        s = r'      total      \d.\d\d\d\d\dE[+-]\d\d \d.\d\d\d\d'
+        pattern = re.compile(s)
+        results = re.findall(pattern, output)
+        tots = results[0].split()
+        tot_val = float(tots[1])
+        tot_err = float(tots[2])
+        return val, err, tot_val, tot_err
 
 
 def clean_repo(name):
@@ -85,20 +153,16 @@ def clean_repo(name):
 
 def run_mcnp(job, template, inp_only=False):
     """Runs all the functions given in this repo."""
-    mcnp_name = job.name + str(job.group_number)
-    write_input(mcnp_name, job.eb, job.plug_material, job.foil_material, job.length, template, job.filter_material)
+    if job.job_type == 'rf':
+        mcnp_name = job.name + str(job.group_number)
+    elif job.job_type == 'ir':
+        mcnp_name = job.name
+    write_input(mcnp_name, job.eb, job.plug_material, job.foil_material, job.length,
+                template, job.job_type, job.group_structure, job.filter_material)
     if not inp_only:
-        run_input(mcnp_name)
-        val, err = extract_output(mcnp_name)
+        run_input(mcnp_name, job.job_type)
+        extracted_output = extract_output(mcnp_name, job.job_type)
         clean_repo(mcnp_name)
-        return val, err
+        return extracted_output
     else:
         return 'Input Written'
-
-
-if __name__ == '__main__':
-    eb = energy_groups()[::-1]*1e-6
-    for i in range(len(eb)-1):
-        if i == 60:
-            result = run_mcnp('input', (eb[i], eb[i+1]), 'HDPE','Au', 1, template, fil=True, inp_only=True)
-            print(result)

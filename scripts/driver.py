@@ -21,21 +21,33 @@ tags = {'REQUEST': 1,
 
 class Filter_Job(object):
     """Container for a particular bonner_tube job."""
-    def __init__(self, pm, l, ln, foilm, film):
+    def __init__(self, pm, l, ln, foilm, film, job_type='rf'):
+        assert job_type in ['rf', 'ir'], 'Job must either be rf (response function) or ir (integral response)'
         self.plug_material = pm
         self.length = l
+        self.length_number = ln
         self.foil_material = foilm
         self.filter_material = film
-        self.length_number = ln
+        self.job_type = job_type
+
+        # if integral response type, assign placeholder erg values
+        if self.job_type == 'ir':
+            self.group_structure = 'scale252'
+            self.group_number = 0
+            self.eb = (0, 0)
+
+        # name the job
         self.name = self.make_name()
 
     def make_name(self):
         """Given the properties, writes a name for the job for storage."""
-        name = '{}_l{}_{}_{}'.format(self.plug_material, self.length_number, self.foil_material, self.filter_material)
+        args = [self.plug_material, self.length_number, self.foil_material, self.filter_material, self.job_type]
+        name = '{}_l{}_{}_{}_{}'.format(*args)
         return name
 
     def assign_erg(self, gs, gn, el, eh):
         """Allows for the assignment for energy group stuff."""
+        assert self.job_type == 'rf', 'Job must be for type rf (response function) to assign energy group information.'
         self.group_structure = gs
         self.group_number = gn
         self.eb = (el, eh)
